@@ -23,8 +23,6 @@
 #define MG_ANIMATION_CHANGE_SPLIT_ORIENTATION	@"ChangeSplitOrientation"	// Animation ID for internal use.
 #define MG_ANIMATION_CHANGE_SUBVIEWS_ORDER		@"ChangeSubviewsOrder"	// Animation ID for internal use.
 
-#define IOS_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
-
 @interface MGSplitViewController (MGPrivateMethods)
 
 - (void)setup;
@@ -72,7 +70,7 @@
 
 - (BOOL)isLandscape
 {
-	return UIInterfaceOrientationIsLandscape(self.interfaceOrientation);
+	return UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]);
 }
 
 
@@ -85,7 +83,7 @@
 
 - (BOOL)shouldShowMaster
 {
-	return [self shouldShowMasterForInterfaceOrientation:self.interfaceOrientation];
+	return [self shouldShowMasterForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
 }
 
 
@@ -236,7 +234,7 @@
 	float statusBarHeight = MAX((fullScreenRect.size.width - appFrame.size.width), (fullScreenRect.size.height - appFrame.size.height));
     
     // In iOS 7 the status bar is transparent, so don't adjust for it.
-    if (IOS_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
+    if (NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_7_0)
         statusBarHeight = 0;
 	
 	float navigationBarHeight = 0;
@@ -248,8 +246,8 @@
 	float width = fullScreenRect.size.width;
 	float height = fullScreenRect.size.height;
 	
-	// Correct for orientation.
-	if (UIInterfaceOrientationIsLandscape(theOrientation)) {
+  // Correct for orientation (only for iOS7.1 and earlier, since iOS8 it will do it automatically).
+  if (NSFoundationVersionNumber <= NSFoundationVersionNumber_iOS_7_1 && UIInterfaceOrientationIsLandscape(theOrientation)) {
 		width = height;
 		height = fullScreenRect.size.width;
 	}
